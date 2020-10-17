@@ -24,13 +24,9 @@ df2 = df_visits[['ESN/Alternator No.','Opened']]
 print("test2 :")
 print(df2.head())
 
-#TODO : implement scheduling functionality
-# pop_hash_only_date = {}
-# for arr in df1 :
-#     pop_hash_only_date[str(arr[0])] = parser.parse(arr[1]).date()
-    
-# print ("after stripping time :")
-# print(pop_hash_only_date)
+
+#TODO : <temporarily scrapped> implement scheduling functionality 
+
 
 numpy_df_pop = df1.to_numpy(dtype=str)
 numpy_df_vis = df2.to_numpy(dtype=str)
@@ -47,14 +43,6 @@ for arr in numpy_df_pop:
     population_hash[arr[0]] = arr[1]
     population_hash_end[arr[0]] = arr[2]
     
-
-
-
-# for i in population_hash.keys():
-#     print("************")
-#     print(i)
-#     print(population_hash[i])
-#     print("************")    
 
 visits_hash = {}
 for arr in numpy_df_vis :
@@ -85,28 +73,15 @@ for pop_keys in population_hash.keys():
                 ans = ans + 1 
     ans_hash[pop_keys] = ans
 
-# for each_key in ans_hash.keys():
-#     print("******************")
-#     print (each_key)
-#     print ( ans_hash[each_key])
-#     print("******************")
-
 with open("solution.csv" , 'w') as f : 
     f.write("ESN,Visits\n")
     for arr in numpy_df_pop:
         f.write("%s,%s\n"%(arr[0],ans_hash[arr[0]]))
 
-#create calender schedule 
 
 
 #print(visits_hash)
 
-# for i in visits_hash.keys():
-#     print("************")
-#     print(i)
-#     print(visits_hash[i])
-#     print("************")
-    
 
 # for arr in numpy_df_pop :
 #    for ele in arr :
