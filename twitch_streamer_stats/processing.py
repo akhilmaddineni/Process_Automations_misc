@@ -11,32 +11,6 @@ rest_api_response = requests.get(rest_cmd_url)
 if rest_api_response.status_code != 200 :
     raise Exception("Communcation with REST API gone bad , please check error code {}".format(rest_api_response.status_code))
 
-#print(type(rest_api_response.json()))
-
-"""
-Example response from streamersonglist : 
-{
-            "id": 1384603,
-            "note": "",
-            "donationAmount": 0,
-            "nonlistSong": null,
-            "createdAt": "2020-10-22T15:18:39.512Z",
-            "playedAt": "2020-10-22T15:18:39.545Z",
-            "requests": [
-                {
-                    "id": 2605509,
-                    "name": "",
-                    "amount": 0,
-                    "source": "manual"
-                }
-            ],
-            "song": {
-                "title": "Toss a Combine Harvester",
-                "artist": "Official End of Stream Song"
-            }
-        },
-
-"""
 
 response_json = rest_api_response.json() #type dict
 
