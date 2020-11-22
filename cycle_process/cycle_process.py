@@ -1,8 +1,8 @@
 import pandas as pd 
 import numpy as np
-from datetime import datetime
-from datetime import date
-from dateutil import parser
+# from datetime import datetime
+# from datetime import date
+# from dateutil import parser
 pop_sheet = 'Population' 
 visits_sheet = 'Visits'
 file_name = 'population.xlsx' 
@@ -20,13 +20,17 @@ print("test : ")
 print(df1.head())
 
 #visits select columns
-df2 = df_visits[['ESN/Alternator No.','Opened']]
+df2 = df_visits[['ESN/Alternator No.','Opened','VISIT TYPE']]
 print("test2 :")
 print(df2.head())
 
-
-#TODO : <temporarily scrapped> implement scheduling functionality 
-
+#visit type inputs : BD VISIT , OIL SERVICE , PM VISIT
+# pop_hash_only_date = {}
+# for arr in df1 :
+#     pop_hash_only_date[str(arr[0])] = parser.parse(arr[1]).date()
+    
+# print ("after stripping time :")
+# print(pop_hash_only_date)
 
 numpy_df_pop = df1.to_numpy(dtype=str)
 numpy_df_vis = df2.to_numpy(dtype=str)
@@ -44,17 +48,29 @@ for arr in numpy_df_pop:
     population_hash_end[arr[0]] = arr[2]
     
 
+
+
+# for i in population_hash.keys():
+#     print("************")
+#     print(i)
+#     print(population_hash[i])
+#     print("************")    
+
 visits_hash = {}
+visit_type_hash = {}
 for arr in numpy_df_vis :
     if arr[0] in visits_hash.keys():
         visits_hash[arr[0]].append(arr[1])
+        visit_type_hash[arr[0]].append(arr[2])
     else :
         visits_hash[arr[0]] = [arr[1]]
+        visit_type_hash[arr[0]] = [arr[2]]
 
 # print ("visits hash : ")
 # print (visits_hash)
 
 # hash format  esn ->visits : '25316320': ['2019-01-28 12:59:46', '2019-02-22 11:46:05', '2019-03-22 11:19:42', '2019-04-29 13:58:58', '2019-05-21 09:40:26', '2019-06-28 11:05:00', '2019-07-25 10:18:35', '2019-08-27 16:45:33', '2019-09-03 10:21:11']
+#visit type inputs : BD VISIT , OIL SERVICE , PM VISIT
 
 ans_hash = {}
 for pop_keys in population_hash.keys():
@@ -64,24 +80,51 @@ for pop_keys in population_hash.keys():
     end_date = end_date.split(" ")[0]
     
     ans = 0
+    bd_visit = 0 
+    oil_service = 0
+    pm_visit = 0 
+    ans_hash[pop_keys] = [0,0,0,0]
     if pop_keys in visits_hash.keys():
         visits_info = visits_hash[pop_keys]
-        
+        index=0
         for each_visit in visits_info :
             each_visit = each_visit.split(" ")[0]
             if (each_visit >= start_date ) and (each_visit <= end_date) :
                 ans = ans + 1 
-    ans_hash[pop_keys] = ans
+                if visit_type_hash[pop_keys][index].strip() == "BD VISIT" :
+                    bd_visit = bd_visit+1
+                elif visit_type_hash[pop_keys][index].strip() == "OIL SERVICE":
+                    oil_service = oil_service + 1 
+                elif visit_type_hash[pop_keys][index].strip() == "PM VISIT":
+                    pm_visit = pm_visit + 1
+            index = index+1
+    ans_hash[pop_keys][0] = ans
+    ans_hash[pop_keys][1] = bd_visit
+    ans_hash[pop_keys][2] = oil_service
+    ans_hash[pop_keys][3] = pm_visit
+
+# for each_key in ans_hash.keys():
+#     print("******************")
+#     print (each_key)
+#     print ( ans_hash[each_key])
+#     print("******************")
 
 with open("solution.csv" , 'w') as f : 
-    f.write("ESN,Visits\n")
+    f.write("ESN,Visits,BD Visit,Oil Service,PM Visit\n")
     for arr in numpy_df_pop:
-        f.write("%s,%s\n"%(arr[0],ans_hash[arr[0]]))
+        f.write("%s,%s,%s,%s,%s\n"%(arr[0],ans_hash[arr[0]][0],ans_hash[arr[0]][1],ans_hash[arr[0]][2],ans_hash[arr[0]][3]))
 
+#create calender schedule 
 
 
 #print(visits_hash)
 
+# for i in visits_hash.keys():
+#     print("************")
+#     print(i)
+#     print(visits_hash[i])
+#     print("************")
+    
 
 # for arr in numpy_df_pop :
 #    for ele in arr :
