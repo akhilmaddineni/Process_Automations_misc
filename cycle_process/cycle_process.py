@@ -1,5 +1,5 @@
 import pandas as pd 
-import numpy as np
+#import numpy as np
 # from datetime import datetime
 # from datetime import date
 # from dateutil import parser
@@ -20,7 +20,7 @@ print("test : ")
 print(df1.head())
 
 #visits select columns
-df2 = df_visits[['ESN/Alternator No.','Opened','VISIT TYPE','Hours/KMs Run','Customer Requested On','VISIT BCD']]
+df2 = df_visits[['ESN/Alternator No.','Opened','VISIT TYPE','Hours/KMs Run','Customer Requested On','VISIT BCD','SR #']]
 print("test2 :")
 print(df2.head())
 
@@ -56,11 +56,11 @@ for arr in numpy_df_vis :
     if arr[0] in visits_hash.keys():
         visits_hash[arr[0]].append(arr[1])
         visit_type_hash[arr[0]].append(arr[2])
-        visit_num_km_rq_hash[arr[0]].append([arr[3],arr[4],arr[5],arr[2]])
+        visit_num_km_rq_hash[arr[0]].append([arr[3],arr[4],arr[5],arr[2],arr[6]])
     else :
         visits_hash[arr[0]] = [arr[1]]
         visit_type_hash[arr[0]] = [arr[2]]
-        visit_num_km_rq_hash[arr[0]] = [[arr[3],arr[4],arr[5],arr[2]]]
+        visit_num_km_rq_hash[arr[0]] = [[arr[3],arr[4],arr[5],arr[2],arr[6]]]
 
 # print ("visits hash : ")
 # print (visits_hash)
@@ -80,10 +80,13 @@ for pop_keys in population_hash.keys():
     bd_visit = 0 
     oil_service = 0
     pm_visit = 0
+    b_check_srn = 0
     b_check_date =0
     b_check_hrs = 0
+    c_check_srn = 0
     c_check_date = 0
     c_check_hrs = 0
+    d_check_srn = 0
     d_check_date = 0
     d_check_hrs = 0
     ans_hash[pop_keys] = [0] * 10
@@ -104,26 +107,29 @@ for pop_keys in population_hash.keys():
 
     if pop_keys in visit_num_km_rq_hash.keys() :
         #sort according to the date .
-        #data : 'Hours/KMs Run','Customer Requested On','VISIT BCD','VISIT TYPE'
+        #data : 'Hours/KMs Run','Customer Requested On','VISIT BCD','VISIT TYPE',"SRN NO"
         visit_num_km_rq_hash[pop_keys].sort(key=lambda x:x[1])
         for arr_each_entry in visit_num_km_rq_hash[pop_keys] :
-            if arr_each_entry[-1] == "OIL SERVICE" :
+            if arr_each_entry[-2] == "OIL SERVICE" :
                 if arr_each_entry[2] == "B CHECK" :
                     b_check_date = arr_each_entry[1].split(" ")[0] #remove time
                     b_check_hrs = arr_each_entry[0]
+                    b_check_srn = arr_each_entry[-1]
                 elif arr_each_entry[2] == "C CHECK" :
                     c_check_date = arr_each_entry[1].split(" ")[0]
                     c_check_hrs = arr_each_entry[0]
+                    c_check_srn = arr_each_entry[-1]
                 elif arr_each_entry[2] == "D CHECK" :
                     d_check_date = arr_each_entry[1].split(" ")[0]
                     d_check_hrs = arr_each_entry[0]
+                    d_check_srn = arr_each_entry[-1]
 
 
 
 
 
 
-    ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,b_check_date,b_check_hrs,c_check_date,c_check_hrs,d_check_date,d_check_hrs]
+    ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,b_check_srn,b_check_date,b_check_hrs,c_check_srn,c_check_date,c_check_hrs,d_check_srn,d_check_date,d_check_hrs]
     # ans_hash[pop_keys][0] = ans
     # ans_hash[pop_keys][1] = bd_visit
     # ans_hash[pop_keys][2] = oil_service
@@ -131,10 +137,10 @@ for pop_keys in population_hash.keys():
 
 
 with open("solution.csv" , 'w') as f : 
-    f.write("ESN,Visits,BD Visit,Oil Service,PM Visit,B CHECK DATE,B CHECK HOURS,C CHECK DATE,C CHECK HOURS,D CHECK DATE,D CHECK HOURS\n")
+    f.write("ESN,Visits,BD Visit,Oil Service,PM Visit,B CHECK SRN,B CHECK DATE,B CHECK HOURS,C CHECK SRN,C CHECK DATE,C CHECK HOURS,D CHECK SRN,D CHECK DATE,D CHECK HOURS\n")
     for arr in numpy_df_pop:
-        f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n"%(arr[0],ans_hash[arr[0]][0],ans_hash[arr[0]][1],ans_hash[arr[0]][2],ans_hash[arr[0]][3], \
+        f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n"%(arr[0],ans_hash[arr[0]][0],ans_hash[arr[0]][1],ans_hash[arr[0]][2],ans_hash[arr[0]][3], \
                                                       ans_hash[arr[0]][4],ans_hash[arr[0]][5],ans_hash[arr[0]][6],ans_hash[arr[0]][7], \
-                                                      ans_hash[arr[0]][8],ans_hash[arr[0]][9]))
+                                                      ans_hash[arr[0]][8],ans_hash[arr[0]][9],ans_hash[arr[0]][10],ans_hash[arr[0]][11],ans_hash[arr[0]][12]))
 
     
