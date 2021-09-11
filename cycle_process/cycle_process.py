@@ -1,8 +1,7 @@
 import pandas as pd 
-#import numpy as np
-# from datetime import datetime
-# from datetime import date
-# from dateutil import parser
+from datetime import datetime
+from datetime import timedelta
+
 pop_sheet = 'Population' 
 visits_sheet = 'Visits'
 file_name = 'population.xlsx' 
@@ -124,12 +123,27 @@ for pop_keys in population_hash.keys():
                     d_check_hrs = arr_each_entry[0]
                     d_check_srn = arr_each_entry[-1]
 
+                dates_list = []
+                if b_check_date != 0 and b_check_date != 'NaT':
+                    dates_list.append(b_check_date)
+                if c_check_date != 0 and d_check_date != 'NaT' :
+                    dates_list.append(c_check_date)
+                if d_check_date != 0 and d_check_date != 'NaT' :
+                    dates_list.append(d_check_date)
+                d_list = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list]
+                sorted(d_list)
+
+                #we need to get latest date + 300 days to get next b check
+                #next_bc
+                if len(d_list) >= 1:
+                    next_bc=d_list[-1]+ timedelta(days=300)
+                    next_bc=str(next_bc).split(" ")[0]
+                else :
+                    next_bc=0
 
 
 
-
-
-    ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,b_check_srn,b_check_date,b_check_hrs,c_check_srn,c_check_date,c_check_hrs,d_check_srn,d_check_date,d_check_hrs]
+    ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,b_check_srn,b_check_date,b_check_hrs,c_check_srn,c_check_date,c_check_hrs,d_check_srn,d_check_date,d_check_hrs,next_bc]
     # ans_hash[pop_keys][0] = ans
     # ans_hash[pop_keys][1] = bd_visit
     # ans_hash[pop_keys][2] = oil_service
@@ -137,10 +151,10 @@ for pop_keys in population_hash.keys():
 
 
 with open("solution.csv" , 'w') as f : 
-    f.write("ESN,Visits,BD Visit,Oil Service,PM Visit,B CHECK SRN,B CHECK DATE,B CHECK HOURS,C CHECK SRN,C CHECK DATE,C CHECK HOURS,D CHECK SRN,D CHECK DATE,D CHECK HOURS\n")
+    f.write("ESN,Visits,BD Visit,Oil Service,PM Visit,B CHECK SRN,B CHECK DATE,B CHECK HOURS,C CHECK SRN,C CHECK DATE,C CHECK HOURS,D CHECK SRN,D CHECK DATE,D CHECK HOURS,NEXT BC\n")
     for arr in numpy_df_pop:
-        f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n"%(arr[0],ans_hash[arr[0]][0],ans_hash[arr[0]][1],ans_hash[arr[0]][2],ans_hash[arr[0]][3], \
+        f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n"%(arr[0],ans_hash[arr[0]][0],ans_hash[arr[0]][1],ans_hash[arr[0]][2],ans_hash[arr[0]][3], \
                                                       ans_hash[arr[0]][4],ans_hash[arr[0]][5],ans_hash[arr[0]][6],ans_hash[arr[0]][7], \
-                                                      ans_hash[arr[0]][8],ans_hash[arr[0]][9],ans_hash[arr[0]][10],ans_hash[arr[0]][11],ans_hash[arr[0]][12]))
+                                                      ans_hash[arr[0]][8],ans_hash[arr[0]][9],ans_hash[arr[0]][10],ans_hash[arr[0]][11],ans_hash[arr[0]][12],ans_hash[arr[0]][13]))
 
     
