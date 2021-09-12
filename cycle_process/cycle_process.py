@@ -1,6 +1,7 @@
 import pandas as pd 
 from datetime import datetime
 from datetime import timedelta
+import numpy as np
 
 pop_sheet = 'Population' 
 visits_sheet = 'Visits'
@@ -88,6 +89,7 @@ for pop_keys in population_hash.keys():
     d_check_srn = 0
     d_check_date = 0
     d_check_hrs = 0
+    next_bc = 0
     ans_hash[pop_keys] = [0] * 10
     if pop_keys in visits_hash.keys():
         visits_info = visits_hash[pop_keys]
@@ -122,26 +124,24 @@ for pop_keys in population_hash.keys():
                     d_check_date = arr_each_entry[1].split(" ")[0]
                     d_check_hrs = arr_each_entry[0]
                     d_check_srn = arr_each_entry[-1]
+    dates_list = []
+    # just some checks
+    if b_check_date != 0 and b_check_date != 'NaT':
+        dates_list.append(b_check_date)
+    if c_check_date != 0 and c_check_date != 'NaT':
+        dates_list.append(c_check_date)
+    if d_check_date != 0 and d_check_date != 'NaT':
+        dates_list.append(d_check_date)
+    d_list = []
+    if len(dates_list) != 0:
+        d_list = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list]
+    sorted(d_list)
 
-                dates_list = []
-                if b_check_date != 0 and b_check_date != 'NaT':
-                    dates_list.append(b_check_date)
-                if c_check_date != 0 and d_check_date != 'NaT' :
-                    dates_list.append(c_check_date)
-                if d_check_date != 0 and d_check_date != 'NaT' :
-                    dates_list.append(d_check_date)
-                d_list = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list]
-                sorted(d_list)
-
-                #we need to get latest date + 300 days to get next b check
-                #next_bc
-                if len(d_list) >= 1:
-                    next_bc=d_list[-1]+ timedelta(days=300)
-                    next_bc=str(next_bc).split(" ")[0]
-                else :
-                    next_bc=0
-
-
+    # we need to get latest date + 300 days to get next b check
+    # next_bc
+    if len(d_list) >= 1:
+        next_bc = d_list[-1] + timedelta(days=300)
+        next_bc = str(next_bc).split(" ")[0]
 
     ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,b_check_srn,b_check_date,b_check_hrs,c_check_srn,c_check_date,c_check_hrs,d_check_srn,d_check_date,d_check_hrs,next_bc]
     # ans_hash[pop_keys][0] = ans
