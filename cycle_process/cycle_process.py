@@ -135,8 +135,7 @@ for pop_keys in population_hash.keys():
     d_list = []
     if len(dates_list) != 0:
         d_list = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list]
-    sorted(d_list)
-
+    d_list=sorted(d_list)
     # we need to get latest date + 300 days to get next b check
     # next_bc
     if len(d_list) >= 1:
