@@ -1,6 +1,7 @@
 import pandas as pd 
 from datetime import datetime
 from datetime import timedelta
+from dateutil.parser import parse
 import numpy as np
 
 pop_sheet = 'Population' 
@@ -23,6 +24,7 @@ print(df1.head())
 df2 = df_visits[['ESN/Alternator No.','Opened','VISIT TYPE','Hours/KMs Run','Customer Requested On','VISIT BCD','SR #']]
 print("test2 :")
 print(df2.head())
+df2['Customer Requested On'] = pd.to_datetime(df2['Customer Requested On'], errors='coerce')
 
 #visit type inputs : BD VISIT , OIL SERVICE , PM VISIT
 # pop_hash_only_date = {}
@@ -119,7 +121,7 @@ for pop_keys in population_hash.keys():
                 elif arr_each_entry[2] == "C CHECK" :
                     c_check_date = arr_each_entry[1].split(" ")[0]
                     c_check_hrs = arr_each_entry[0]
-                    c_check_srn = arr_each_entry[-1]
+                    c_check_srn = arr_each_entry[-1] 
                 elif arr_each_entry[2] == "D CHECK" :
                     d_check_date = arr_each_entry[1].split(" ")[0]
                     d_check_hrs = arr_each_entry[0]
@@ -135,9 +137,11 @@ for pop_keys in population_hash.keys():
     d_list = []
     if len(dates_list) != 0:
         d_list = [datetime.strptime(d, '%Y-%m-%d') for d in dates_list]
+
     d_list=sorted(d_list)
     # we need to get latest date + 300 days to get next b check
     # next_bc
+    
     if len(d_list) >= 1:
         next_bc = d_list[-1] + timedelta(days=300)
         next_bc = str(next_bc).split(" ")[0]
