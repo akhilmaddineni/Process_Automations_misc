@@ -154,7 +154,7 @@ for pop_keys in population_hash.keys():
     max_pm = max(max_pm,len(pm_check_date_arr))
     max_b = max(max_b,len(b_check_date_arr))
     max_c = max(max_c,len(c_check_date_arr))
-    max_d = max(max_c,len(d_check_date_arr))
+    max_d = max(max_d,len(d_check_date_arr))
     dates_list_bc = []
     dates_list_bc.extend(b_check_date_arr)
     dates_list_bc.extend(c_check_date_arr)
@@ -206,22 +206,22 @@ for arr in numpy_df_pop :
         if i < len(ans_hash[arr[0]][4]) : 
             str_data += f",{ans_hash[arr[0]][4][i]},{ans_hash[arr[0]][5][i]},{ans_hash[arr[0]][6][i]}"
         else : 
-            str_data += ",0,0"
+            str_data += ",0,0,0"
     for i in range(max_b) : 
         if i < len(ans_hash[arr[0]][7]) : 
             str_data += f",{ans_hash[arr[0]][7][i]},{ans_hash[arr[0]][8][i]},{ans_hash[arr[0]][9][i]}"
         else : 
-            str_data += ",0,0"
+            str_data += ",0,0,0"
     for i in range(max_c): 
         if i < len(ans_hash[arr[0]][10]) : 
             str_data += f",{ans_hash[arr[0]][10][i]},{ans_hash[arr[0]][11][i]},{ans_hash[arr[0]][12][i]}"
         else : 
-            str_data += ",0,0"
+            str_data += ",0,0,0"
     for i in range(max_d): 
         if i < len(ans_hash[arr[0]][13]) : 
             str_data += f",{ans_hash[arr[0]][13][i]},{ans_hash[arr[0]][14][i]},{ans_hash[arr[0]][15][i]}"
         else : 
-            str_data += ",0,0"
+            str_data += ",0,0,0"
     str_data += f",{ans_hash[arr[0]][16]},{ans_hash[arr[0]][17]}"
     str_data += "\n"
     file.write(str_data)
