@@ -17,6 +17,9 @@ print(df_visits.head())
 
 #dataframe pop select columns 
 df1 = df_pop[['ESN', 'AMC starting Date' , 'AMC Ending date', 'TOTAL VISITS ']]
+
+df1['AMC starting Date'] = pd.to_datetime(df1['AMC starting Date'], errors='coerce')
+df1['AMC Ending date'] = pd.to_datetime(df1['AMC Ending date'], errors='coerce')
 print("test : ")
 print(df1.head())
 
@@ -45,6 +48,7 @@ population_hash_end = {}
 
 
 for arr in numpy_df_pop:
+    arr[0] = arr[0].strip()
     #key = esn number , val = start date 
     population_hash[arr[0]] = arr[1]
     population_hash_end[arr[0]] = arr[2]
@@ -55,6 +59,7 @@ visit_type_hash = {}
 visit_num_km_rq_hash = {}
 
 for arr in numpy_df_vis :
+    arr[0] = arr[0].strip()
     if arr[0] in visits_hash.keys():
         visits_hash[arr[0]].append(arr[1])
         visit_type_hash[arr[0]].append(arr[2])
@@ -89,7 +94,7 @@ for pop_keys in population_hash.keys():
     c_check_date = 0
     c_check_hrs = 0
     d_check_srn = 0
-    d_check_date = 0
+    d_check_date = 0 
     d_check_hrs = 0
     next_bc = 0
     ans_hash[pop_keys] = [0] * 10
@@ -97,6 +102,10 @@ for pop_keys in population_hash.keys():
         visits_info = visits_hash[pop_keys]
         index=0
         for each_visit in visits_info :
+            if '/' in each_visit:  # Check if date is in MM/DD/YYYY format
+                each_visit = str(datetime.strptime(each_visit, '%m/%d/%Y'))
+            else:
+                each_visit = str(datetime.strptime(each_visit, '%Y-%m-%d %H:%M:%S'))
             each_visit = each_visit.split(" ")[0]
             if (each_visit >= start_date ) and (each_visit <= end_date) :
                 ans = ans + 1 
