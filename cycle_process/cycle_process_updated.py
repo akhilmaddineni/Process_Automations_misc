@@ -24,6 +24,7 @@ print(df1.head())
 df2 = df_visits[['ESN/Alternator No.','Opened','VISIT TYPE','Hours/KMs Run','Customer Requested On','VISIT BCD','SR #']]
 print("test2 :")
 print(df2.head())
+df2['Customer Requested On'] = pd.to_datetime(df2['Customer Requested On'], errors='coerce')
 
 #visit type inputs : BD VISIT , OIL SERVICE , PM VISIT
 # pop_hash_only_date = {}
@@ -44,6 +45,7 @@ population_hash_end = {}
 
 
 for arr in numpy_df_pop:
+    arr[0] = arr[0].strip()
     #key = esn number , val = start date 
     population_hash[arr[0]] = arr[1]
     population_hash_end[arr[0]] = arr[2]
@@ -54,6 +56,7 @@ visit_type_hash = {}
 visit_num_km_rq_hash = {}
 
 for arr in numpy_df_vis :
+    arr[0] = arr[0].strip()
     if arr[0] in visits_hash.keys():
         visits_hash[arr[0]].append(arr[1])
         visit_type_hash[arr[0]].append(arr[2])
@@ -87,12 +90,16 @@ for pop_keys in population_hash.keys():
     pm_visit = 0
     b_check_date_arr = []
     b_check_hrs_arr = []
+    b_check_srn_arr = []
     c_check_date_arr = []
     c_check_hrs_arr = []
+    c_check_srn_arr = []
     d_check_date_arr = []
     d_check_hrs_arr = []
+    d_check_srn_arr = []
     pm_check_date_arr = []
     pm_check_hrs_arr = []
+    pm_check_srn_arr = []
     ans_hash[pop_keys] = [0] * 10
     next_bc = 0
     next_visit = 0 
@@ -100,6 +107,10 @@ for pop_keys in population_hash.keys():
         visits_info = visits_hash[pop_keys]
         index=0
         for each_visit in visits_info :
+            if '/' in each_visit:  # Check if date is in MM/DD/YYYY format
+                each_visit = str(datetime.strptime(each_visit, '%m/%d/%Y'))
+            else:
+                each_visit = str(datetime.strptime(each_visit, '%Y-%m-%d %H:%M:%S'))
             each_visit = each_visit.split(" ")[0]
             if (each_visit >= start_date ) and (each_visit <= end_date) :
                 ans = ans + 1 
@@ -123,19 +134,23 @@ for pop_keys in population_hash.keys():
                         if date_rm != 0 and date_rm != 'NaT' :
                             b_check_date_arr.append(date_rm) #remove time
                             b_check_hrs_arr.append(arr_each_entry[0])
+                            b_check_srn_arr.append(arr_each_entry[-1])
                         
                     elif arr_each_entry[2] == "C CHECK" :
                         if date_rm != 0 and date_rm != 'NaT' :
                             c_check_date_arr.append(date_rm)
                             c_check_hrs_arr.append(arr_each_entry[0])
+                            c_check_srn_arr.append(arr_each_entry[-1])
                     elif arr_each_entry[2] == "D CHECK" :
                         if date_rm != 0 and date_rm != 'NaT' :
                             d_check_date_arr.append(date_rm)
                             d_check_hrs_arr.append(arr_each_entry[0])
+                            d_check_srn_arr.append(arr_each_entry[-1])
                 elif arr_each_entry[-2] == "PM VISIT" :
                     if date_rm != 0 and date_rm != 'NaT' :
                         pm_check_date_arr.append(date_rm)
                         pm_check_hrs_arr.append(arr_each_entry[0])
+                        pm_check_srn_arr.append(arr_each_entry[-1])
     max_pm = max(max_pm,len(pm_check_date_arr))
     max_b = max(max_b,len(b_check_date_arr))
     max_c = max(max_c,len(c_check_date_arr))
@@ -165,7 +180,7 @@ for pop_keys in population_hash.keys():
         next_visit = d_list_vis[-1] + timedelta(days=183) #+6 months
         next_visit = str(next_visit).split(" ")[0]
 
-    ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,pm_check_date_arr,pm_check_hrs_arr,b_check_date_arr,b_check_hrs_arr,c_check_date_arr,c_check_hrs_arr,d_check_date_arr,d_check_hrs_arr,next_bc,next_visit]
+    ans_hash[pop_keys] = [ans,bd_visit,oil_service,pm_visit,pm_check_date_arr,pm_check_hrs_arr,pm_check_srn_arr,b_check_date_arr,b_check_hrs_arr,b_check_srn_arr,c_check_date_arr,c_check_hrs_arr,c_check_srn_arr,d_check_date_arr,d_check_hrs_arr,d_check_srn_arr,next_bc,next_visit]
 
 
 file = open("solution_updated.csv" , 'w')
@@ -173,13 +188,13 @@ file = open("solution_updated.csv" , 'w')
 #generate title 
 str_title = "ESN,Visits,BD Visit,Oil Service,PM Visit" 
 for i in range(max_pm) : 
-    str_title += f",PM-{i+1} Visit,Hours"
+    str_title += f",PM-{i+1} Visit,Hours,SRN"
 for i in range(max_b) : 
-    str_title += f",BC-{i+1} Visit,Hours"
+    str_title += f",BC-{i+1} Visit,Hours,SRN"
 for i in range(max_c) : 
-    str_title += f",CC-{i+1} Visit,Hours"
+    str_title += f",CC-{i+1} Visit,Hours,SRN"
 for i in range(max_d) : 
-    str_title += f",DC-{i+1} Visit,Hours"
+    str_title += f",DC-{i+1} Visit,Hours,SRN"
 str_title += ",Next BC,Next Visit"
 str_title += "\n"
 
@@ -189,25 +204,25 @@ for arr in numpy_df_pop :
     str_data = f"{arr[0]},{ans_hash[arr[0]][0]},{ans_hash[arr[0]][1]},{ans_hash[arr[0]][2]},{ans_hash[arr[0]][3]}"
     for i in range(max_pm) : 
         if i < len(ans_hash[arr[0]][4]) : 
-            str_data += f",{ans_hash[arr[0]][4][i]},{ans_hash[arr[0]][5][i]}"
+            str_data += f",{ans_hash[arr[0]][4][i]},{ans_hash[arr[0]][5][i]},{ans_hash[arr[0]][6][i]}"
         else : 
             str_data += ",0,0"
     for i in range(max_b) : 
-        if i < len(ans_hash[arr[0]][6]) : 
-            str_data += f",{ans_hash[arr[0]][6][i]},{ans_hash[arr[0]][7][i]}"
+        if i < len(ans_hash[arr[0]][7]) : 
+            str_data += f",{ans_hash[arr[0]][7][i]},{ans_hash[arr[0]][8][i]},{ans_hash[arr[0]][9][i]}"
         else : 
             str_data += ",0,0"
     for i in range(max_c): 
-        if i < len(ans_hash[arr[0]][8]) : 
-            str_data += f",{ans_hash[arr[0]][8][i]},{ans_hash[arr[0]][9][i]}"
+        if i < len(ans_hash[arr[0]][10]) : 
+            str_data += f",{ans_hash[arr[0]][10][i]},{ans_hash[arr[0]][11][i]},{ans_hash[arr[0]][12][i]}"
         else : 
             str_data += ",0,0"
     for i in range(max_d): 
-        if i < len(ans_hash[arr[0]][10]) : 
-            str_data += f",{ans_hash[arr[0]][10][i]},{ans_hash[arr[0]][11][i]}"
+        if i < len(ans_hash[arr[0]][13]) : 
+            str_data += f",{ans_hash[arr[0]][13][i]},{ans_hash[arr[0]][14][i]},{ans_hash[arr[0]][15][i]}"
         else : 
             str_data += ",0,0"
-    str_data += f",{ans_hash[arr[0]][12]},{ans_hash[arr[0]][13]}"
+    str_data += f",{ans_hash[arr[0]][16]},{ans_hash[arr[0]][17]}"
     str_data += "\n"
     file.write(str_data)
 file.close()
